@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:8000/ -->
+<html lang="sv"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1D Crypto Dashboard</title>
+  <style>
+    :root{ --bg:#0b0b0f; --fg:#e6e6e6; --muted:#9aa0a6; --card:#121218; --border:#1d1d27;
+           --up:#00c853; --down:#ff5252; --neutral:#ffb300; --accent:#5e6ad2; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{ margin:0; background:var(--bg); color:var(--fg);
+          font:400 16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";}
+    header,footer,main{max-width:1200px; margin:0 auto; padding:16px;}
+    header{ display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+    h1{margin:0; font-weight:700; letter-spacing:.2px; font-size:clamp(18px,2.4vw,26px)}
+    .sub{color:var(--muted); font-size:clamp(12px,1.6vw,14px)}
+    .btn{ border:1px solid var(--border); background:#0f1020; color:#e7e9ff; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600;}
+    .overview{ margin:12px 0 0 0; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:var(--card);
+               display:flex; gap:10px; flex-wrap:wrap; align-items:center; min-height:40px }
+    .dot{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#0f1020; font-weight:700; font-size:13px; }
+    .b{ width:10px; height:10px; border-radius:50% } .b.up{background:var(--up)} .b.neutral{background:var(--neutral)} .b.down{background:var(--down)}
+    .s{ color:var(--muted); font-weight:600; letter-spacing:.3px }
+    .layout{ display:grid; gap:16px; grid-template-columns:1fr minmax(280px,.9fr); align-items:start; margin-top:12px; }
+    @media (max-width:900px){ .layout{ grid-template-columns:1fr; } }
+    .grid{ display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+    .card{ border:1px solid var(--border); background:var(--card); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:8px; min-height:120px;}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap}
+    .title{font-weight:700} .symbol{font-size:clamp(14px,2vw,16px); letter-spacing:.4px}
+    .name{color:var(--muted); font-size:clamp(12px,1.6vw,13px)} .price{font-size:clamp(18px,3vw,24px); font-weight:700}
+    .change{font-weight:700} .up{color:var(--up)} .down{color:var(--down)} .neutralText{color:var(--neutral)}
+    .extras{color:var(--muted); font-size:clamp(12px,1.6vw,13px)}
+    .pill{ padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-weight:700; font-size:13px;}
+    .small{color:var(--muted); font-size:12px}
+    .err{margin:10px 0 0 0; border:1px solid #632; background:#2a1717; color:#f3d9d9; padding:8px 12px; border-radius:10px; font-size:13px; display:none}
+    footer{color:var(--muted); border-top:1px solid var(--border); font-size:13px}
+    a{color:var(--accent); text-decoration:none} a:hover{text-decoration:underline}
+  </style>
+<style type="text/css" id="operaUserStyle"></style><style type="text/css"></style></head>
+<body>
+  <header>
+    <div>
+      <h1>1D Crypto Dashboard</h1>
+      <div class="sub">Senast uppdaterad: <span id="updated">2025-09-07 13:49:36</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="refresh" class="btn">Uppdatera data</button>
+      <button id="loadAnalysis" class="btn">Ladda analys</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="err" class="err"></div>
+    <div id="overview" class="overview" aria-live="polite"><span class="small" style="margin-right:6px">Översikt:</span><span class="dot"><span class="b neutral"></span><span>BTC</span><span class="s">+0.47%</span></span><span class="dot"><span class="b neutral"></span><span>ETH</span><span class="s">+0.31%</span></span><span class="dot"><span class="b up"></span><span>SOL</span><span class="s">+0.69%</span></span><span class="dot"><span class="b up"></span><span>BNB</span><span class="s">+1.38%</span></span><span class="dot"><span class="b neutral"></span><span>XRP</span><span class="s">+1.06%</span></span><span class="dot"><span class="b neutral"></span><span>SUI</span><span class="s">+1.89%</span></span></div>
+    <section class="layout">
+      <section><div class="grid" id="grid" aria-live="polite"><article class="card">
+          <div class="row title"><span class="symbol">BTC</span><span class="name">Bitcoin</span></div>
+          <div class="row price">$111,257.18</div>
+          <div class="row change up">+0.47% (24h)</div>
+          <div class="row extras"><span>Vol 24h: $652.73M</span><span>H/L: $109,977–$111,377.19</span></div>
+          <div class="row"><span class="pill neutralText">Z: -0.67</span><span class="extras">PGL: μ=113,873.59 | ±1σ 109,989.17–117,758.02</span></div></article><article class="card">
+          <div class="row title"><span class="symbol">ETH</span><span class="name">Ethereum</span></div>
+          <div class="row price">$4,307.89</div>
+          <div class="row change up">+0.31% (24h)</div>
+          <div class="row extras"><span>Vol 24h: $927.04M</span><span>H/L: $4,236–$4,315.35</span></div>
+          <div class="row"><span class="pill neutralText">Z: -0.63</span><span class="extras">PGL: μ=4,423.11 | ±1σ 4,241.3–4,604.93</span></div></article><article class="card">
+          <div class="row title"><span class="symbol">SOL</span><span class="name">Solana</span></div>
+          <div class="row price">$203.71</div>
+          <div class="row change up">+0.69% (24h)</div>
+          <div class="row extras"><span>Vol 24h: $269.73M</span><span>H/L: $199.32–$203.97</span></div>
+          <div class="row"><span class="pill up">Z: +0.78</span><span class="extras">PGL: μ=195.46 | ±1σ 184.88–206.04</span></div></article><article class="card">
+          <div class="row title"><span class="symbol">BNB</span><span class="name">BNB</span></div>
+          <div class="row price">$872.6</div>
+          <div class="row change up">+1.38% (24h)</div>
+          <div class="row extras"><span>Vol 24h: $111.59M</span><span>H/L: $856.59–$874.44</span></div>
+          <div class="row"><span class="pill up">Z: +1.04</span><span class="extras">PGL: μ=849.46 | ±1σ 827.28–871.64</span></div></article><article class="card">
+          <div class="row title"><span class="symbol">XRP</span><span class="name">XRP</span></div>
+          <div class="row price">$2.832</div>
+          <div class="row change up">+1.06% (24h)</div>
+          <div class="row extras"><span>Vol 24h: $86.65M</span><span>H/L: $2.793–$2.837</span></div>
+          <div class="row"><span class="pill neutralText">Z: -0.94</span><span class="extras">PGL: μ=2.975 | ±1σ 2.822–3.127</span></div></article><article class="card">
+          <div class="row title"><span class="symbol">SUI</span><span class="name">Sui</span></div>
+          <div class="row price">$3.406</div>
+          <div class="row change up">+1.89% (24h)</div>
+          <div class="row extras"><span>Vol 24h: $38.48M</span><span>H/L: $3.314–$3.406</span></div>
+          <div class="row"><span class="pill neutralText">Z: -0.62</span><span class="extras">PGL: μ=3.545 | ±1σ 3.321–3.77</span></div></article></div></section>
+      <aside class="card" id="analysis" aria-live="polite"><h2 style="margin:0 0 8px 0">Dagens 24h-analys</h2><section style="margin-bottom:12px"><strong>🌐 Marknadsöversikt:</strong><br>Sentimentet är svagt positivt. BTC i sidled, ETH marginellt upp. Volatiliteten dämpad.</section><section style="margin-bottom:12px"><strong>🔍 Signaler &amp; utlösare:</strong><ul style="margin:6px 0 0 18px;padding:0"><li>Små nettoinflöden till större BTC-plånböcker.</li><li>ETF-flöden nära noll, men inte negativa.</li><li>Large-cap alts visar selektiv styrka; bredden fortfarande begränsad.</li></ul></section><section style="margin-bottom:12px"><strong>🧠 Tolkning &amp; mönster:</strong><br>Bas-scenario: range med bias uppåt så länge BTC håller gårdagens VWAP och 1D-stöd.</section><section style="margin-bottom:12px"><strong>🏷️ Taggar:</strong> #Bitcoin #Ethereum #Volatility #Liquidity</section><section style="margin-bottom:12px"><strong>📎 Källor:</strong> <a href="https://api.binance.com/api/v3/ticker/24hr" target="_blank" rel="noopener">Binance 24hr ticker</a> • <a href="https://glassnode.com/" target="_blank" rel="noopener">Glassnode (översikt)</a></section><div style="color:#9aa0a6;font-size:12px;border-top:1px solid #1d1d27;padding-top:8px">Denna sammanfattning är strukturerad analys, inte finansiell rådgivning.</div></aside>
+    </section>
+  </main>
+
+  <footer>Datakälla: Binance (24hr ticker + 1d klines). Analysen är informationsunderlag, inte finansiell rådgivning.</footer>
+
+  <script>
+    const ASSETS = [
+      { name:"Bitcoin",   symbol:"BTC", pair:"BTCUSDT" },
+      { name:"Ethereum",  symbol:"ETH", pair:"ETHUSDT" },
+      { name:"Solana",    symbol:"SOL", pair:"SOLUSDT" },
+      { name:"BNB",       symbol:"BNB", pair:"BNBUSDT" },
+      { name:"XRP",       symbol:"XRP", pair:"XRPUSDT" },
+      { name:"Sui",       symbol:"SUI", pair:"SUIUSDT" }
+    ];
+    const $grid = document.getElementById('grid'), $updated = document.getElementById('updated'),
+          $refresh = document.getElementById('refresh'), $analysis = document.getElementById('analysis'),
+          $loadAnalysis = document.getElementById('loadAnalysis'), $overview = document.getElementById('overview'),
+          $err = document.getElementById('err');
+
+    function showErr(msg){ $err.textContent = String(msg); $err.style.display='block'; }
+    window.addEventListener('error', e => showErr(e.message));
+    window.addEventListener('unhandledrejection', e => showErr(e.reason?.message || e.reason || 'Ohanterat fel'));
+
+    function nf(opts){ return new Intl.NumberFormat('en-US', opts); }
+    const fmtPrice=v=>nf({maximumFractionDigits:v<1?6:v<100?3:2}).format(v);
+    const fmtPct=v=>(v>=0?'+':'')+nf({maximumFractionDigits:2}).format(v)+'%';
+    const fmtCompact=v=>nf({notation:'compact', maximumFractionDigits:2}).format(v);
+    const fmtZ=z=>(z>=0?'+':'')+nf({maximumFractionDigits:2}).format(z);
+
+    const mean=xs=>xs.reduce((a,b)=>a+b,0)/xs.length;
+    const stdev=xs=>{const m=mean(xs); return Math.sqrt(mean(xs.map(x=>(x-m)**2)));};
+    function zScore(last, closes, n=30){ if(closes.length<n) return 0; const t=closes.slice(-n); const m=mean(t); const s=stdev(t)||1e-9; return (last-m)/s; }
+    function pglBands(closes, n=30, k=[1,2,3]){ if(closes.length<n) return null; const t=closes.slice(-n); const m=mean(t), s=stdev(t); return { m, s, levels:k.map(kk=>({up:m+kk*s, dn:m-kk*s, k:kk})) }; }
+    function classifyStatus(last, pct, pgl, z){
+      if(!pgl) return 'neutral'; const mu=pgl.m, s=pgl.s||1e-9;
+      if (last>=mu+s || (z>=0.75 && pct>=0.5)) return 'up';
+      if (last<=mu-s || (z<=-0.75 && pct<=-0.5)) return 'down';
+      return 'neutral';
+    }
+
+    function renderOverview(cards){
+      $overview.innerHTML = '<span class="small" style="margin-right:6px">Översikt:</span>';
+      cards.forEach(c=>{
+        const el=document.createElement('span'); el.className='dot';
+        el.innerHTML = `<span class="b ${c.status}"></span><span>${c.symbol}</span><span class="s">${fmtPct(c.changePct)}</span>`;
+        $overview.appendChild(el);
+      });
+    }
+
+    function renderCards(cards){
+      $grid.innerHTML = '';
+      cards.forEach(c=>{
+        const dir = c.changePct>=0?'up':'down';
+        const zCls = c.status==='up'?'up':c.status==='down'?'down':'neutralText';
+        const pglText = c.pgl ? `PGL: μ=${fmtPrice(c.pgl.m)} | ±1σ ${fmtPrice(c.pgl.levels[0].dn)}–${fmtPrice(c.pgl.levels[0].up)}` : 'PGL: —';
+        const el=document.createElement('article'); el.className='card';
+        el.innerHTML = `
+          <div class="row title"><span class="symbol">${c.symbol}</span><span class="name">${c.name}</span></div>
+          <div class="row price">$${fmtPrice(c.last)}</div>
+          <div class="row change ${dir}">${fmtPct(c.changePct)} (24h)</div>
+          <div class="row extras"><span>Vol 24h: $${fmtCompact(c.volQuote)}</span><span>H/L: $${fmtPrice(c.low)}–$${fmtPrice(c.high)}</span></div>
+          <div class="row"><span class="pill ${zCls}">Z: ${fmtZ(c.z)}</span><span class="extras">${pglText}</span></div>`;
+        $grid.appendChild(el);
+      });
+      $updated.textContent = new Date().toLocaleString('sv-SE', { hour12:false });
+    }
+
+    // Placeholders direkt så sidan aldrig är tom
+    function placeholderCards(){
+      return ASSETS.map(a=>({ name:a.name, symbol:a.symbol, last:0, changePct:0, volQuote:0, high:0, low:0, z:0, pgl:null, status:'neutral' }));
+    }
+
+    async function fetchTickers(){
+      try{
+        const symbols=encodeURIComponent(JSON.stringify(ASSETS.map(a=>a.pair)));
+        const res=await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`, {cache:'no-store'});
+        if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const arr=await res.json();
+        return Object.fromEntries(arr.map(o=>[o.symbol,o]));
+      }catch(e){ showErr(`Binance tickers: ${e.message||e}`); return null; }
+    }
+
+    async function fetchCloses(pair, limit=60){
+      try{
+        const res=await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=1d&limit=${limit}`, {cache:'no-store'});
+        if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const kl=await res.json();
+        return kl.map(r=>Number(r[4]));
+      }catch(e){ showErr(`Binance klines ${pair}: ${e.message||e}`); return []; }
+    }
+
+    async function loadSafe(){
+      // 1) rendera placeholders
+      let cards = placeholderCards();
+      renderOverview(cards); renderCards(cards);
+
+      // 2) tickers
+      const tickers = await fetchTickers();
+      if(tickers){
+        cards = ASSETS.map(a=>{
+          const t=tickers[a.pair]||{};
+          return { name:a.name, symbol:a.symbol,
+            last:Number(t.lastPrice||0), changePct:Number(t.priceChangePercent||0),
+            volQuote:Number(t.quoteVolume||0), high:Number(t.highPrice||0), low:Number(t.lowPrice||0),
+            z:0, pgl:null, status:'neutral'
+          };
+        });
+        renderOverview(cards); renderCards(cards);
+      }
+
+      // 3) klines och klassning (i bakgrunden)
+      const closesMap = Object.fromEntries(await Promise.all(
+        ASSETS.map(async a => [a.pair, await fetchCloses(a.pair, 60)])
+      ));
+      cards = cards.map(c=>{
+        const closes = closesMap[`${c.symbol}USDT`] || closesMap[`${c.symbol}USDC`] || [];
+        const z=zScore(c.last, closes, 30);
+        const pgl=pglBands(closes, 30, [1,2,3]);
+        const status=classifyStatus(c.last, c.changePct, pgl, z);
+        return {...c, z, pgl, status};
+      });
+      renderOverview(cards); renderCards(cards);
+    }
+
+    async function loadAnalysis(){
+      try{
+        const res = await fetch('analysis.json', { cache:'no-store' });
+        if(!res.ok) throw new Error(res.status + ' ' + res.statusText);
+        const payload = await res.json();
+        if (Array.isArray(payload.html)) {
+          $analysis.innerHTML = payload.html.join('');
+        } else if (payload.overview || payload.signals || payload.interpretation) {
+          const parts = [];
+          parts.push("<h2 style='margin:0 0 8px 0'>Dagens 24h-analys</h2>");
+          if (payload.overview) parts.push(`<section style='margin-bottom:12px'><strong>🌐 Marknadsöversikt:</strong><br>${payload.overview}</section>`);
+          if (payload.signals)  parts.push(`<section style='margin-bottom:12px'><strong>🔍 Signaler & utlösare:</strong><ul style='margin:6px 0 0 18px;padding:0'>${payload.signals.map(s=>`<li>${s}</li>`).join('')}</ul></section>`);
+          if (payload.interpretation) parts.push(`<section style='margin-bottom:12px'><strong>🧠 Tolkning & mönster:</strong><br>${payload.interpretation}</section>`);
+          if (payload.tags) parts.push(`<section style='margin-bottom:12px'><strong>🏷️ Taggar:</strong> ${payload.tags.join(' ')}</section>`);
+          if (payload.sources) parts.push(`<section style='margin-bottom:12px'><strong>📎 Källor:</strong> ${payload.sources.map(s=>`<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>`).join(' • ')}</section>`);
+          parts.push("<div style='color:#9aa0a6;font-size:12px;border-top:1px solid #1d1d27;padding-top:8px'>Denna sammanfattning är strukturerad analys, inte finansiell rådgivning.</div>");
+          $analysis.innerHTML = parts.join('');
+        } else {
+          $analysis.innerHTML = '<div class="small">Tom analysfil.</div>';
+        }
+      }catch(err){ showErr(`Analys: ${err.message||err}`); $analysis.innerHTML = '<div class="small">Kunde inte läsa analysis.json.</div>'; }
+    }
+
+    document.getElementById('refresh').addEventListener('click', loadSafe);
+    document.getElementById('loadAnalysis').addEventListener('click', loadAnalysis);
+    loadSafe();
+  </script>
+
+
+</body></html>
